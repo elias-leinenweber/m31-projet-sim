@@ -9,5 +9,6 @@ struct result {
 };
 
 struct result	 slotted_aloha(float, uint32_t, uint32_t);
+void		 attempt_send(uint32_t, uint32_t *, uint32_t, uint32_t, bool *);
 
 #endif
