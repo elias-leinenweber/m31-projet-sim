@@ -8,7 +8,6 @@ struct result {
 	uint32_t	queued_msgs;
 };
 
-struct result	 slotted_aloha(float, uint32_t, uint32_t);
-void		 attempt_send(uint32_t, uint32_t *, uint32_t, uint32_t, bool *);
+struct result	slotted_aloha(float, uint32_t, uint32_t);
 
 #endif
