@@ -19,11 +19,12 @@ main(int argc, char *argv[])
 	p = argc > 1 ? atoi(argv[1]) : 0.01;
 	k = argc > 2 ? atoi(argv[2]) : 4;
 
-	printf("Pour p = %.2f, k = %u et n variant de 10 à 100 :\n", p, k);
-	printf("n\tSlots_u\tMsg_q\n");
+	fprintf(stderr,
+	    "Pour p = %.2f, k = %u et n variant de 10 à 100 :\n", p, k);
+	printf("n;useful_slots;queued_msgs\n");
 	for (n = 10; n <= 100; ++n) {
 		res = slotted_aloha(p, k, n);
-		printf("%d\t%u\t%u\n", n, res.useful_slots, res.queued_msgs);
+		printf("%d;%u;%u\n", n, res.useful_slots, res.queued_msgs);
 	}
 	return 0;
 }
