@@ -1,0 +1,29 @@
+---
+title: "Compte-rendu"
+author: "E. Leinenweber & M. Zimmermann"
+output: pdf_document
+---
+
+```{r include = FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+```{r message = FALSE, warning = FALSE}
+if (!require(ggplot2))
+  install.packages("ggplot2", repos = "http://cran.us.r-project.org")
+```
+
+# Compte-rendu
+
+Introduction.
+
+## Graphe
+
+```{r message = FALSE}
+res <- read.csv2("res.csv", header = TRUE)
+p <- ggplot(data = res, aes(x = n, y = useful_slots)) +
+     geom_point(size = 1) +
+     geom_smooth() +
+     ggtitle("Nombre de slots utiles en fonction du nombre de stations")
+print(p)
+```

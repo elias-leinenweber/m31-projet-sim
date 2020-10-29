@@ -25,3 +25,10 @@ On rappelle l'énoncé :
 > et k=4, et évaluer l'efficacité du système en fonction de n (compris entre 10
 > et 100) : on pourra mesurer le nombre de slots utiles, ou le nombre de
 > messages en attente d'émission, par exemple.
+
+## Génération du compte-rendu
+
+### Dépendances
+- `R`
+- `pandoc`
+- `pdflatex`
