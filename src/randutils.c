@@ -26,11 +26,23 @@ randbool(float p)
 }
 
 /*
- * Renvoie un entier non signé compris entre `lo` (inclus) et `hi` (exclu).
+ * Renvoie un entier non signé aléatoire avec une probabilité uniforme, compris
+ * entre `lo` (inclus) et `hi` (exclu).
  */
 uint32_t
 randint(uint32_t lo, uint32_t hi)
 {
 	assert(lo < hi);
 	return lo + (rand() % (hi - lo));
+}
+
+/*
+ * Renvoie un entier non signé aléatoire suivant une loi uniforme discrète de
+ * paramètres (`a`, `b`).
+ */
+uint32_t
+uniform(uint32_t a, uint32_t b)
+{
+	assert(b >= a);
+	return randint(a, b + 1);
 }
