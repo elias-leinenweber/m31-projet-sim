@@ -8,7 +8,7 @@ echo "=== Compilation ==="
 make || exit 1
 
 echo "=== Exécution de la simulation ==="
-$main > $res || exit 1
+$main $1 $2 $3 > $res || exit 1
 
 echo "=== Génération du compte-rendu ==="
 Rscript -e "rmarkdown::render('$report')"
