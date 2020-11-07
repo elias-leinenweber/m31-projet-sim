@@ -23,6 +23,7 @@ slotted_aloha(float p, uint32_t k, uint32_t n)
 
 	/* Initialisation des variables */
 	res.useful_slots = 0;
+	res.queued_msgs = 0;
 	next_slot = calloc(n + 1, sizeof(uint32_t));
 	senders = calloc(n + 1, sizeof(uint32_t));
 	reset_seed();
@@ -73,7 +74,6 @@ slotted_aloha(float p, uint32_t k, uint32_t n)
 			++res.useful_slots;
 
 		/* On compte le nombre de messages en attente. */
-		res.queued_msgs = 0;
 		for (station = 1; station <= n; ++station)
 			if (next_slot != 0)
 				++res.queued_msgs;
@@ -83,6 +83,9 @@ slotted_aloha(float p, uint32_t k, uint32_t n)
 		    "Slot#%u: %suseful, queued_msgs=%u\n",
 		    slot, is_slot_occupied ? "" : "not ", res.queued_msgs);
 	}
+
+	/* Calcule le nombre moyen de messages en attente. */
+	res.queued_msgs = (double)res.queued_msgs / SLOTS;
 
 	free(senders);
 	free(next_slot);
