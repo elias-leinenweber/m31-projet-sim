@@ -48,13 +48,15 @@ slotted_aloha(float p, uint32_t k, uint32_t n)
 			 * Sinon, elle tente de transmettre un nouveau message
 			 * avec une probabilité égale à `p`.
 			 */
-			if (slot == next_slot[station] || randbool(p))
+			if (slot == next_slot[station] ||
+			    (randbool(p) && ++res.queued_msgs))
 				senders[nb_senders++] = station;
 
 		if (nb_senders == 1) {
 			/* Pas de collision, envoi du message. */
 			next_slot[senders[0]] = 0;
 			is_slot_occupied = true;
+			--res.queued_msgs;
 		} else if (nb_senders > 1)
 			/*
 			 * Collision : toutes les stations ayant tenté de
@@ -73,19 +75,11 @@ slotted_aloha(float p, uint32_t k, uint32_t n)
 		if (is_slot_occupied)
 			++res.useful_slots;
 
-		/* On compte le nombre de messages en attente. */
-		for (station = 1; station <= n; ++station)
-			if (next_slot != 0)
-				++res.queued_msgs;
-
 		/* Sortie d'état. */
 		fprintf(stderr,
 		    "Slot#%u: %suseful, queued_msgs=%u\n",
 		    slot, is_slot_occupied ? "" : "not ", res.queued_msgs);
 	}
-
-	/* Calcule le nombre moyen de messages en attente. */
-	res.queued_msgs = (double)res.queued_msgs / SLOTS;
 
 	free(senders);
 	free(next_slot);

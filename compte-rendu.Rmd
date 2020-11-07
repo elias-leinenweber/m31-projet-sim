@@ -73,25 +73,30 @@ pas d'abandon de la transmission au bout d'un nombre donné d'échecs.
 
 Dans un premier temps, nous allons simuler le fonctionnement du système pour une
 durée de $100$ slots, avec $p = 0.01$ et $k = 4$, et évaluer l'efficacité du
-système en fonction de $n$ (compris entre $10$ et $100$) : on pourra mesurer le
-nombre de slots utiles, ou le nombre de messages en attente d'émission, par
-exemple.
-
-Ensuite nous allons émettre une hypothèse sur les paramètres et effectuer des
-prolongements du sujet.
+système en fonction de $n$ (compris entre $10$ et $100$) : on mesurera le nombre
+de slots utiles et le nombre de messages en attente d'émission.
 
 ```{r message = FALSE, warning = FALSE}
 res <- read.csv2("res.csv", header = TRUE)
 res <- res[res$k == 4,]
-p <- ggplot(data = res, aes(x = n, y = useful_slots)) +
-     geom_point(size = 0, alpha = 0.1) +
-     geom_smooth() +
-     labs(x = "Nombre de stations",
-          y = "Nombre de slots utiles",
-          title = "Aloha")
-print(p)
 
-gb <- ggplot_build(p)
+p1 <- ggplot(data = res, aes(x = n, y = useful_slots)) +
+      geom_point(size = 0, alpha = 0.1) +
+      geom_smooth() +
+      labs(x = "Nombre de stations",
+           y = "Nombre de slots utiles",
+           title = "Aloha")
+print(p1)
+
+p2 <- ggplot(data = res, aes(x = n, y = queued_msgs)) +
+      geom_point(size = 0, alpha = 0.1) +
+      geom_smooth() +
+      labs(x = "Nombre de stations",
+           y = "Nombre de messages en attente d'émission",
+           title = "Aloha")
+print(p2)
+
+gb <- ggplot_build(p1)
 n_y_max <- gb$data[[1]]$x[which(diff(sign(diff(gb$data[[1]]$y))) == -2) + 1]
 ```
 
@@ -141,6 +146,7 @@ y : moyenne des messages en attente
 couleur : différentes valeurs de p*n
 d'abord fixer n pour un tableau puis fixer p
 -->
+
 
 # Conclusion
 
