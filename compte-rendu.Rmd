@@ -1,9 +1,17 @@
 ---
-title: "Simulation du fonctionnement du protocole ALOHA discrétisé"
+title: "Simulation du fonctionnement du protocole Aloha discrétisé"
 author:
   - Elias Leinenweber
   - Mathieu Zimmermann
-output: pdf_document
+output:
+  pdf_document:
+    number_sections: true
+header-includes:
+- |
+  ```{=latex}
+  \usepackage{algorithm}
+  \usepackage{algorithmic}
+  ```
 ---
 
 ```{r include = FALSE}
@@ -15,18 +23,18 @@ if (!require(ggplot2))
   install.packages("ggplot2", repos = "http://cran.us.r-project.org")
 ```
 
-# Sujet
+# Introduction
 
-L'idée du projet est de simuler le fonctionnement de n stations se partageant un
-canal de communication unique, et s'emparant du canal lorsqu'elles souhaitent
+L'idée du projet est de simuler le fonctionnement de $n$ stations se partageant
+un canal de communication unique, et s'emparant du canal lorsqu'elles souhaitent
 l'utiliser, indépendamment l'une de l'autre.
 
 Le temps est discrétisé, découpé en *slots*, et chaque station a une probabilité
-`p` (valeur commune à toutes les stations) de commencer une émission au début
+$p$ (valeur commune à toutes les stations) de commencer une émission au début
 d'un slot. Lorsque deux stations émettent dans le même slot, il y a collision,
-et dans ce cas, elles doivent ré-émettre leur message ultérieurement. Pour
-déterminer le moment de la ré-émission, la station choisit un slot au hasard
-uniformément parmi les `K` slots suivants (`K` étant un paramètre commun à
+et dans ce cas, elles doivent réémettre leur message ultérieurement. Pour
+déterminer le moment de la réémission, la station choisit un slot au hasard
+uniformément parmi les $k$ slots suivants ($k$ étant un paramètre commun à
 l'ensemble des stations partageant le canal).
 
 Un slot est *utile* lorsqu'il permet de transmettre effectivement un message ;
@@ -35,34 +43,83 @@ pas d'abandon de la transmission au bout d'un nombre donné d'échecs.
 
 # Mise en œuvre de la réalisation
 
-Le programme principal est `aloha`. Il s'exécute de la manière suivante :
-```
+<!-- TODO Remplacer pseudocode bidon par celui d'Aloha discrétisé -->
+\begin{algorithm}
+  \caption{Aloha discrétisé}
+  \begin{algorithmic}
+    \REQUIRE $n \geq 0 \vee x \neq 0$
+    \ENSURE $y = x^n$
+    \STATE $y \Leftarrow 1$
+    \IF{$n < 0$}
+        \STATE $X \Leftarrow 1 / x$
+        \STATE $N \Leftarrow -n$
+    \ELSE
+        \STATE $X \Leftarrow x$
+        \STATE $N \Leftarrow n$
+    \ENDIF
+    \WHILE{$N \neq 0$}
+        \IF{$N$ is even}
+            \STATE $X \Leftarrow X \times X$
+            \STATE $N \Leftarrow N / 2$
+        \ELSE[$N$ is odd]
+            \STATE $y \Leftarrow y \times X$
+            \STATE $N \Leftarrow N - 1$
+        \ENDIF
+    \ENDWHILE
+  \end{algorithmic}
+\end{algorithm}
 
-# Introduction
+# Simulation préliminaire : nombre de slots utiles
 
-Dans un premier temps,
-nous allons simuler le fonctionnement du système pour une durée de 100 slots,
-avec `p=0.01` et `k=4`, et évaluer l'efficacité du système en fonction de `n`
-(compris entre 10 et 100) : on pourra mesurer le nombre de slots utiles, ou le
-nombre de messages en attente d'émission, par exemple.
+Dans un premier temps, nous allons simuler le fonctionnement du système pour une
+durée de $100$ slots, avec $p = 0.01$ et $k = 4$, et évaluer l'efficacité du
+système en fonction de $n$ (compris entre $10$ et $100$) : on pourra mesurer le
+nombre de slots utiles, ou le nombre de messages en attente d'émission, par
+exemple.
 
-Ensuite nous allons effectuer des prolongements du sujet.
-
-# Simulation préliminaire
+Ensuite nous allons émettre une hypothèse sur les paramètres et effectuer des
+prolongements du sujet.
 
 ```{r message = FALSE, warning = FALSE}
 res <- read.csv2("res.csv", header = TRUE)
 res <- res[res$k == 4,]
 p <- ggplot(data = res, aes(x = n, y = useful_slots)) +
-     geom_point(size = 1) +
+     geom_point(size = 0, alpha = 0.1) +
      geom_smooth() +
-     ggtitle("Nombre de slots utiles en fonction du nombre de stations")
+     labs(x = "Nombre de stations",
+          y = "Nombre de slots utiles",
+          title = "Aloha")
 print(p)
+
+gb <- ggplot_build(p)
+n_y_max <- gb$data[[1]]$x[which(diff(sign(diff(gb$data[[1]]$y))) == -2) + 1]
 ```
 
-On remarque que l'efficacité du système atteint son pic en n ~= 33.
+On remarque que l'efficacité du système atteint son pic en
+$n \approx `r n_y_max`$.
 
-# Prolongements
+On peut également définir le concept de *viabilité du réseau*, c'est-à-dire si
+le réseau est effectivement utilisable ou non : on constate que pour $p = 0.01$,
+$k = 4$, à partir de $n \geq 50$ il est quasiment impossible d'envoyer un
+message ; le réseau est définitivement bloqué.
+
+On serait alors tenté de chercher une sorte de "formule magique" qui nous dirait
+si le réseau sera saturé à long terme (c'est-à-dire si le nombre moyen de
+messages en attente diverge) à partir des paramètres.
+
+# Hypothèse
+
+On émet l'hypothèse que la viabilité du réseau, c'est-à-dire si on tend vers une
+congestion ou non à long terme, dépend de la valeur de $np$, une estimation
+brute de l'espérance du nombre moyen de tentatives d'envoi de message à chaque
+slot.
+
+En réalité, il faudrait également prendre en compte le nombre de messages en
+attente, ce qui signifie que l'état de chaque slot dépendrait de celui du
+précédent. Il aurait donc pu être intéressant d'utiliser un modèle markovien
+mais cela dépasse le cadre de ce projet.
+
+# Étude de l'hypothèse
 
 ## Variation des paramètres
 
@@ -70,20 +127,27 @@ On remarque que l'efficacité du système atteint son pic en n ~= 33.
 res <- read.csv2("res.csv", header = TRUE)
 res <- res[res$n <= 100,]
 p <- ggplot(data = res, aes(x = n, y = useful_slots, colour = factor(k))) +
-     geom_point(size = 1)
-p <- p + geom_smooth()
-p <- p + ggtitle("Nombre de slots utiles en fonction du nombre de stations")
+     geom_point(size = 0, alpha = 0.1) +
+     geom_smooth() +
+     labs(x = "Nombre de stations", y = "Nombre de slots utiles", title = "Aloha")
 print(p)
 ```
 
-## Messages durant plus d'un slot
-
-TODO
-
 ## Nombre moyen de messages en attente
 
-TODO
+<!-- TODO
+x : nb de slots passés
+y : moyenne des messages en attente
+couleur : différentes valeurs de p*n
+d'abord fixer n pour un tableau puis fixer p
+-->
 
 # Conclusion
 
-En conclusion, le protocole ALOHA discrétisé...
+<!-- TODO but : trouver un seuil pour n*p -->
+En conclusion, le protocole Aloha discrétisé...
+
+# Annexe
+
+Le code source complet de ce projet se trouve à l'adresse suivante :
+[`git.unistra.fr/leinenweber/m31-projet-sim`](https://git.unistra.fr/leinenweber/m31-projet-sim).
