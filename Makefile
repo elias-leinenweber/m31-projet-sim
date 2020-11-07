@@ -1,7 +1,7 @@
 CC = cc
 CFLAGS = -Wall
 
-all: main
+all: aloha
 
 out:
 	[ -d out ] || mkdir out
@@ -14,11 +14,11 @@ out/aloha.o: out/randutils.o src/aloha.h src/aloha.c
 	$(CC) $(CFLAGS) -c src/aloha.c
 	mv aloha.o out/
 
-main: out/aloha.o src/main.c
-	$(CC) $(CFLAGS) -o out/main out/randutils.o out/aloha.o src/main.c
+aloha: out/aloha.o src/main.c
+	$(CC) $(CFLAGS) -o out/aloha out/randutils.o out/aloha.o src/main.c
 
-run: main
-	out/main
+run: aloha
+	out/aloha
 
 clean:
 	rm -rf out/
