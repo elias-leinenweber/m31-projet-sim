@@ -10,14 +10,14 @@
  * Effectue une simulation.
  *
  * Paramètres :
- * - p : probabilité de commencer une émission au début d'un slot
- * - k : nombre de slots suivants parmi lesquels choisir le slot de réémission
- * - n : nombre de stations
+ * - `p` : probabilité de commencer une émission au début d'un slot
+ * - `k` : nombre de slots suivants parmi lesquels choisir le slot de réémission
+ * - `n` : nombre de stations
  */
 struct result
 slotted_aloha(float p, uint32_t k, uint32_t n)
 {
-	struct result res;			/* Résultats de la simulation */
+	struct result res;			/* résultats de la simulation */
 	uint32_t i, nb_senders, *next_slot, *senders, slot, station;
 	bool is_slot_occupied;
 

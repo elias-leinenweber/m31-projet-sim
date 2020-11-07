@@ -1,8 +1,8 @@
 ---
-title: "Simulation du fonctionnement d'Aloha discrétisé"
+title: "Simulation du fonctionnement du protocole ALOHA discrétisé"
 author:
   - Elias Leinenweber
-  - Matthieu Zimmermann
+  - Mathieu Zimmermann
 output: pdf_document
 ---
 
@@ -33,12 +33,20 @@ Un slot est *utile* lorsqu'il permet de transmettre effectivement un message ;
 il faut donc qu'il y ait une émission, et une seule, durant le slot. Il n'y a
 pas d'abandon de la transmission au bout d'un nombre donné d'échecs.
 
+# Mise en œuvre de la réalisation
+
+Le programme principal est `aloha`. Il s'exécute de la manière suivante :
+```
+
 # Introduction
 
-Nous allons simuler le fonctionnement du système pour une durée de 100 slots,
+Dans un premier temps,
+nous allons simuler le fonctionnement du système pour une durée de 100 slots,
 avec `p=0.01` et `k=4`, et évaluer l'efficacité du système en fonction de `n`
 (compris entre 10 et 100) : on pourra mesurer le nombre de slots utiles, ou le
 nombre de messages en attente d'émission, par exemple.
+
+Ensuite nous allons effectuer des prolongements du sujet.
 
 # Simulation préliminaire
 
@@ -67,3 +75,15 @@ p <- p + geom_smooth()
 p <- p + ggtitle("Nombre de slots utiles en fonction du nombre de stations")
 print(p)
 ```
+
+## Messages durant plus d'un slot
+
+TODO
+
+## Nombre moyen de messages en attente
+
+TODO
+
+# Conclusion
+
+En conclusion, le protocole ALOHA discrétisé...
