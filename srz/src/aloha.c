@@ -60,10 +60,17 @@ Results test(Aloha_test aloha_test, void* random_params) {
         }
         // affichage
         if (aloha_test.verbose) {
-            debug(ans, aloha_test, slot);
+            int k = 0;
+            if (random_params) k = *((int*)random_params);
+            printf("%f\t%u\t%u\t%u\t%u\t%u\n",
+                aloha_test.prob,
+                k,
+                aloha_test.nb_stations,
+                slot,
+                ans.useful_slots,
+                ans.tot_queued_msgs[slot]);
         }
-        if (DEBUG) debug(ans, aloha_test, slot);
-        // mise a jour du next_try
+        //if (DEBUG) debug(ans, aloha_test, slot);
         for (unsigned int j = 0; j < aloha_test.nb_stations; j++) {            
             Station* st = &aloha_test.stations[j];
             if (st->next_try>0) st->next_try--;
