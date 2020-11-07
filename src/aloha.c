@@ -24,6 +24,7 @@ slotted_aloha(float p, uint32_t k, uint32_t n)
 	/* Initialisation des variables */
 	res.useful_slots = 0;
 	res.queued_msgs = 0;
+	nb_senders = 0;
 	next_slot = calloc(n + 1, sizeof(uint32_t));
 	senders = calloc(n + 1, sizeof(uint32_t));
 	reset_seed();
@@ -34,9 +35,9 @@ slotted_aloha(float p, uint32_t k, uint32_t n)
 		is_slot_occupied = false;
 
 		/* On réinitialise les transmetteurs. */
-		nb_senders = 0;
 		for (i = 0; i < nb_senders; ++i)
 			senders[i] = 0;
+		nb_senders = 0;
 
 		/* Pour toutes les stations : */
 		for (station = 1; station <= n; ++station)
