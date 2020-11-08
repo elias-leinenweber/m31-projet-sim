@@ -13,9 +13,10 @@
  * - `p` : probabilité de commencer une émission au début d'un slot
  * - `k` : nombre de slots suivants parmi lesquels choisir le slot de réémission
  * - `n` : nombre de stations
+ * - `slots` : durée de la simulation en slots
  */
 struct result
-slotted_aloha(float p, uint32_t k, uint32_t n)
+slotted_aloha(double p, uint32_t k, uint32_t n, uint32_t slots)
 {
 	struct result res;			/* résultats de la simulation */
 	uint32_t i, nb_senders, *next_slot, *senders, slot, station;
@@ -27,10 +28,9 @@ slotted_aloha(float p, uint32_t k, uint32_t n)
 	nb_senders = 0;
 	next_slot = calloc(n + 1, sizeof(uint32_t));
 	senders = calloc(n + 1, sizeof(uint32_t));
-	reset_seed();
 
 	/* Pour chaque slot (représentant chacun une unité de temps) : */
-	for (slot = 1; slot <= SLOTS; ++slot) {
+	for (slot = 1; slot <= slots; ++slot) {
 		/* On débute un nouveau slot : il n'est pas occupé. */
 		is_slot_occupied = false;
 
