@@ -1,94 +1,96 @@
-#include <stdbool.h>
-#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 
 #include "aloha.h"
-#include "randutils.h"
 
-/*
- * Effectue une simulation.
- *
- * Paramètres :
- * - `p` : probabilité de commencer une émission au début d'un slot
- * - `k` : nombre de slots suivants parmi lesquels choisir le slot de réémission
- * - `n` : nombre de stations
- * - `slots` : durée de la simulation en slots
- * - `beb` : si le mode "binary exponential backoff" est activé ou non
- */
-struct result
-slotted_aloha(double p, uint32_t k, uint32_t n, uint32_t slots, bool beb)
-{
-	struct result res;			/* résultats de la simulation */
-	uint32_t i, nb_senders, *next_slot, *senders, slot, station, *tries;
-	bool is_slot_occupied;
+Results test(Aloha_test aloha_test, void* random_params) {
+    Results ans;
+    init_results(&ans, aloha_test.nb_stations, aloha_test.nb_slots);
+    //print_stations(aloha_test.stations, aloha_test.nb_stations);
+    for (unsigned int slot = 0; slot < aloha_test.nb_slots; slot++) {
+        int nb_msgs = 0;
+        //print_results(ans, i, aloha_test.nb_stations);
+        // les stations veulent-elles emettre un nouveau message?
+        for (unsigned int j = 0; j < aloha_test.nb_stations; j++) {            
+            Station* st = &aloha_test.stations[j];
+            if (rand() / (float) RAND_MAX < aloha_test.prob) {
+                st->queued_msgs++;
+            }
+            ans.tot_queued_msgs[slot]+=st->queued_msgs;
+        }
+        // y a-t-il collision?
+        for (unsigned int j = 0; j < aloha_test.nb_stations && nb_msgs < 2; j++) {                      
+            Station* st = &aloha_test.stations[j];
+            if (st->queued_msgs > 0
+                &&
+                st->next_try == 0) {
+                nb_msgs++;
+            }
+        }
+        // calcul de l'attente si collision
+        if (nb_msgs > 1) {
+            //printf("collision\n");
+            for (unsigned int j = 0; j < aloha_test.nb_stations; j++) {            
+                Station* st = &aloha_test.stations[j];
+                if (st->queued_msgs > 0
+                    &&
+                    st->next_try == 0) {
+                        st->next_try = aloha_test.random(st->nb_retries, random_params);
+                        st->nb_retries+=1;
+                        ans.msgs_sent[slot]++;
+                        if(DEBUG) printf("%u \n", st->next_try);
+                }
+            }
+        }
+        // envoi du message
+        else if (nb_msgs == 1) {
+            unsigned int j = 0;
+            ans.msgs_sent[slot] = 1;
+            ans.useful_slots++;
+            while(j < aloha_test.nb_stations) {
+                if (aloha_test.stations[j].queued_msgs > 0
+                    &&
+                    aloha_test.stations[j].next_try == 0) {
+                        aloha_test.stations[j].queued_msgs --;
+                        j = aloha_test.nb_stations;
+                        ans.tot_queued_msgs[slot]--;
+                }
+                j++;
+            }
+        }
+        // affichage
+        if (aloha_test.verbose) {
+            int k = 0;
+            if (random_params) k = *((int*)random_params);
+            printf("%f\t%u\t%u\t%u\t%u\t%u\n",
+                aloha_test.prob,
+                k,
+                aloha_test.nb_stations,
+                slot,
+                ans.useful_slots,
+                ans.tot_queued_msgs[slot]);
+        }
+        //if (DEBUG) debug(ans, aloha_test, slot);
+        for (unsigned int j = 0; j < aloha_test.nb_stations; j++) {            
+            Station* st = &aloha_test.stations[j];
+            if (st->next_try>0) st->next_try--;
+        }
+    }
 
-	/* Initialisation des variables */
-	res.useful_slots = 0;
-	res.queued_msgs = 0;
-	nb_senders = 0;
-	next_slot = calloc(n + 1, sizeof(uint32_t));
-	senders = calloc(n + 1, sizeof(uint32_t));
-	tries = beb ? calloc(n + 1, sizeof(uint32_t)) : NULL;
 
-	/* Pour chaque slot (représentant chacun une unité de temps) : */
-	for (slot = 1; slot <= slots; ++slot) {
-		/* On débute un nouveau slot : il n'est pas occupé. */
-		is_slot_occupied = false;
+    return ans;
+}
 
-		/* On réinitialise les transmetteurs. */
-		for (i = 0; i < nb_senders; ++i)
-			senders[i] = 0;
-		nb_senders = 0;
+Results test_uniform(char verbose, float prob, unsigned int nb_stations, unsigned int nb_slots, int k) {
+    Aloha_test aloha_test;
+    int params = k;
+    init_aloha_test(&aloha_test, verbose, prob, nb_stations, nb_slots, &uniform);
+    return test(aloha_test, &params);
+}
 
-		/* Pour toutes les stations : */
-		for (station = 1; station <= n; ++station)
-			/*
-			 * Soit elle a déjà tenté (et échoué) de transmettre un
-			 * message : dans ce cas-là, si elle a choisi le slot
-			 * courant pour ré-émettre son message, on tente à
-			 * nouveau de transmettre le message.
-			 * Sinon, elle tente de transmettre un nouveau message
-			 * avec une probabilité égale à `p`.
-			 */
-			if (slot == next_slot[station] ||
-			    (randbool(p) && ++res.queued_msgs))
-				senders[nb_senders++] = station;
-
-		if (nb_senders == 1) {
-			/* Pas de collision, envoi du message. */
-			next_slot[senders[0]] = 0;
-			is_slot_occupied = true;
-			--res.queued_msgs;
-		} else if (nb_senders > 1)
-			/*
-			 * Collision : toutes les stations ayant tenté de
-			 * transmettre pendant ce slot, choisissent un slot
-			 * parmi les `k` suivants pour retransmettre leur
-			 * message.
-			 */
-			for (i = 0; i < nb_senders; ++i)
-				next_slot[senders[i]] = slot +
-				    (beb ? beb_rand(tries[senders[i]]++) :
-				    uniform(1, k));
-
-		/*
-		 * Si le slot est occupé, c'est-à-dire si une station a effectué
-		 * une transmission au cours de ce slot, on le considère comme
-		 * "utile".
-		 */
-		if (is_slot_occupied)
-			++res.useful_slots;
-
-		/* Sortie d'état. */
-		fprintf(stderr,
-		    "Slot#%u: %suseful, queued_msgs=%u\n",
-		    slot, is_slot_occupied ? "" : "not ", res.queued_msgs);
-	}
-
-	if (tries)
-		free(tries);
-	free(senders);
-	free(next_slot);
-	return res;
+Results test_beb(char verbose, float prob, unsigned int nb_stations, unsigned int nb_slots) {
+    Aloha_test aloha_test;
+    void* params = 0;
+    init_aloha_test(&aloha_test, verbose, prob, nb_stations, nb_slots, &beb_rand);
+    return test(aloha_test, params);
 }

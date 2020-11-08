@@ -1,11 +1,17 @@
-#ifndef ALOHA_H
-#define ALOHA_H
+#ifndef __ALOHA__
 
-struct result {
-	uint32_t	useful_slots;	/* le nombre de slots utiles */
-	uint32_t	queued_msgs;	/* le nombre de messages en attente */
-};
+#define __ALOHA__
 
-struct result	slotted_aloha(double, uint32_t, uint32_t, uint32_t, bool);
+#include "utils.h"
+#include "structs.h"
+
+#define DEBUG 0
+
+
+Results test(Aloha_test aloha_test, void* random_params);
+
+Results test_uniform(char verbose, float prob, unsigned int nb_stations, unsigned int nb_slots, int k);
+
+Results test_beb(char verbose, float prob, unsigned int nb_stations, unsigned int nb_slots);
 
 #endif
