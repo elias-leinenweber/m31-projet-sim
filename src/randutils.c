@@ -47,6 +47,10 @@ uniform(uint32_t a, uint32_t b)
 	return randint(a, b + 1);
 }
 
+/*
+ * Algorithme "binary exponential backoff" : à chaque tentative, la borne
+ * supérieure double.
+ */
 uint32_t
 beb_rand(uint32_t try) {
 	uint32_t hi = 1;

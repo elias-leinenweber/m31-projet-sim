@@ -14,6 +14,7 @@
  * - `k` : nombre de slots suivants parmi lesquels choisir le slot de réémission
  * - `n` : nombre de stations
  * - `slots` : durée de la simulation en slots
+ * - `beb` : si le mode "binary exponential backoff" est activé ou non
  */
 struct result
 slotted_aloha(double p, uint32_t k, uint32_t n, uint32_t slots, bool beb)

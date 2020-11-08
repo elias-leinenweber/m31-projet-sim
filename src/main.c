@@ -62,10 +62,12 @@ main(int argc, char *argv[])
 	/* Quatrième partie. */
 	sim_id = 4;
 	for (slots = 0; slots <= slotsmax; ++slots) {
-		for (n = 30; n <= 40; ++n)
-			for (p = 0.00875; p <= 0.01; p += 0.00025)
-				for (i = 0; i < TESTS; ++i)
-					sim(p, K, n, slots, true);
+		for (n = 10; n <= 50; n += 10)
+			for (i = 0; i < TESTS; ++i)
+				sim(0.01, K, n, slots, true);
+		for (p = 0.001; p <= 0.005; p += 0.0005)
+			for (i = 0; i < TESTS; ++i)
+				sim(p, K, 100, slots, true);
 	}
 
 	return EXIT_SUCCESS;
