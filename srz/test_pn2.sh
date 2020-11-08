@@ -5,7 +5,8 @@ touch ./scripts/data
 
 echo -e "proba\tk\tnbStations\tnbSlots\tnbSlotsUtiles\tnbMessagesEnAttente" > ./scripts/data
 
-
+echo "u ou b (uniforme/beb)"
+read typeR
 
 echo "nombre de slots max :"
 read nb_slots_max
@@ -26,7 +27,7 @@ read pas
 echo "k :"
 read k
 
-./main_t2 u $nb_slots_max $proba $pn_min $pn_max $pas $k >> ./scripts/data
+./main_t2 $typeR $nb_slots_max $proba $pn_min $pn_max $pas $k >> ./scripts/data
 
 
 

@@ -4,6 +4,8 @@
 
 #include "aloha.h"
 
+#define NB_TESTS 1000
+
 int main(int argv, char** args) {
     char type_rand = 'u';
     int nb_stations = 10;
@@ -49,11 +51,13 @@ int main(int argv, char** args) {
         if (DEBUG) {
         fprintf(stderr, "proba : %f\n", proba);
     }
-        if (type_rand == 'u') {
-            result = test_uniform(1, proba, nb_stations, nb_slots, k);
-        }
-        else if (type_rand == 'b') {
-            result = test_beb(1, proba, nb_stations, nb_slots);
+        for (int count = 0; count < NB_TESTS; count++) {
+            if (type_rand == 'u') {
+                result = test_uniform(1, proba, nb_stations, nb_slots, k);
+            }
+            else if (type_rand == 'b') {
+                result = test_beb(1, proba, nb_stations, nb_slots);
+            }
         }
     }
     exit(EXIT_SUCCESS);
