@@ -12,6 +12,7 @@ header-includes:
   ```{=latex}
   \usepackage[french,boxed,ruled,lined]{algorithm2e}
   \usepackage[french]{babel}
+  \usepackage{listings}
   ```
 ---
 
@@ -44,23 +45,24 @@ pas d'abandon de la transmission au bout d'un nombre donné d'échecs.
 
 # Mise en œuvre de la réalisation
 
-\begin{algorithm}[ht!]
-  \caption{Aloha discrétisé}
-  \Entree{$p, k, n$}
-  \PourCh{slot}{
-    Marquer comme non occupé \;
-    (Ré)-initialiser la liste des transmetteurs \;
-    \PourCh{station}{
-      \Si{le slot a été choisi pour retransmettre}{
-        Démarrer une tentative \;
-        \SinonSi{rand}{
-          $\tt{queued_msgs} \leftarrow \tt{queued_msgs} + 1$ \;
-          Démarrer une tentative \;
-        }
-      }
-    }
-  }
-\end{algorithm}
+\lstset{literate=
+  {á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1
+  {Á}{{\'A}}1 {É}{{\'E}}1 {Í}{{\'I}}1 {Ó}{{\'O}}1 {Ú}{{\'U}}1
+  {à}{{\`a}}1 {è}{{\`e}}1 {ì}{{\`i}}1 {ò}{{\`o}}1 {ù}{{\`u}}1
+  {À}{{\`A}}1 {È}{{\'E}}1 {Ì}{{\`I}}1 {Ò}{{\`O}}1 {Ù}{{\`U}}1
+  {ä}{{\"a}}1 {ë}{{\"e}}1 {ï}{{\"i}}1 {ö}{{\"o}}1 {ü}{{\"u}}1
+  {Ä}{{\"A}}1 {Ë}{{\"E}}1 {Ï}{{\"I}}1 {Ö}{{\"O}}1 {Ü}{{\"U}}1
+  {â}{{\^a}}1 {ê}{{\^e}}1 {î}{{\^i}}1 {ô}{{\^o}}1 {û}{{\^u}}1
+  {Â}{{\^A}}1 {Ê}{{\^E}}1 {Î}{{\^I}}1 {Ô}{{\^O}}1 {Û}{{\^U}}1
+  {Ã}{{\~A}}1 {ã}{{\~a}}1 {Õ}{{\~O}}1 {õ}{{\~o}}1
+  {œ}{{\oe}}1 {Œ}{{\OE}}1 {æ}{{\ae}}1 {Æ}{{\AE}}1 {ß}{{\ss}}1
+  {ű}{{\H{u}}}1 {Ű}{{\H{U}}}1 {ő}{{\H{o}}}1 {Ő}{{\H{O}}}1
+  {ç}{{\c c}}1 {Ç}{{\c C}}1 {ø}{{\o}}1 {å}{{\r a}}1 {Å}{{\r A}}1
+  {€}{{\euro}}1 {£}{{\pounds}}1 {«}{{\guillemotleft}}1
+  {»}{{\guillemotright}}1 {ñ}{{\~n}}1 {Ñ}{{\~N}}1 {¿}{{?`}}1
+}
+
+\lstinputlisting[language=C, firstline=9, lastline=93]{src/aloha.c}
 
 Cet algorithme est une des interprétations possibles du sujet.
 
@@ -91,14 +93,16 @@ p1 <- ggplot(data = res, aes(x = n, y = useful_slots)) +
       geom_smooth() +
       labs(x = "Nombre de stations",
            y = "Nombre de slots utiles",
-           title = "Aloha discrétisé (p = 0.01, k = 4, durée : 100)")
+           title = "Aloha discrétisé",
+           caption = "")
 print(p1)
 
 p2 <- ggplot(data = res, aes(x = n, y = queued_msgs)) +
       geom_smooth(color = 'red') +
       labs(x = "Nombre de stations",
            y = "Nombre de messages en attente d'émission",
-           title = "")
+           title = "",
+           caption = "p = 0.01, k = 4, durée : 100")
 print(p2)
 ```
 
@@ -126,7 +130,8 @@ p <- ggplot(data = res, aes(x = n, y = useful_slots, colour = factor(k))) +
      geom_smooth() +
      labs(x = "Nombre de stations",
           y = "Nombre de slots utiles",
-          title = "Aloha discrétisé (p = 0.01, 4 <= k <= 10, durée : 100 slots)")
+          title = "Aloha discrétisé",
+          caption = "p = 0.01, 4 <= k <= 10, durée : 100 slots")
 print(p)
 ```
 
@@ -161,7 +166,8 @@ p <- ggplot(data = res, aes(x = slots, y = queued_msgs, colour = factor(np))) +
      labs(x = "Durée en slots",
           y = "Nombre moyen de messages en attente d'émission",
           color = "n * p",
-          title = "Aloha discrétisé (0.001 <= p <= 0.005, k = 4, 10 <= n <= 50)")
+          title = "Aloha discrétisé",
+          caption = "0.001 <= p <= 0.005, k = 4, 10 <= n <= 50")
 print(p)
 ```
 
@@ -175,7 +181,7 @@ diverger fortement.
 
 ## Resserrage de l'intervalle d'étude
 
-On peut resserrer l'intervalle d'étude autour de $n = 0,3$, qui a l'air d'être
+On peut resserrer l'intervalle d'étude autour de $n = 0,2$, qui a l'air d'être
 une zone d'instabilité.
 
 ```{r fig.align = 'center', out.width = "67%"}
@@ -188,11 +194,16 @@ p <- ggplot(data = res, aes(x = slots, y = queued_msgs, colour = factor(np))) +
      labs(x = "Durée en slots",
           y = "Nombre moyen de messages en attente d'émission",
           color = "n * p",
-          title = "Aloha discrétisé (0.00875 <= p <= 0.01, k = 4, 20 <= n <= 40)")
+          title = "Aloha discrétisé",
+          caption = "0.00875 <= p <= 0.01, k = 4, 18 <= n <= 23")
 print(p)
 ```
 
-Le résultat n'est pas très concluant.
+On peut observer une stagnation jusqu'à $np \leq 0,2$, après quoi le nombre
+moyen de messages en attente grandit fortement.
+
+En dessous du seuil empirique de $np = 0,2$, Aloha est relativement viable, mais
+il est possible de faire mieux.
 
 # Prolongement : relance "beb"
 
@@ -210,7 +221,8 @@ p <- ggplot(data = res, aes(x = slots, y = queued_msgs, colour = factor(np))) +
      labs(x = "Durée en slots",
           y = "Nombre moyen de messages en attente d'émission",
           color = "n * p",
-          title = "Aloha discrétisé avec relance \"beb\" (0.00875 <= p <= 0.01, k = 4, 30 <= n <= 40)")
+          title = "Aloha discrétisé avec relance \"beb\"",
+          caption = "0.00875 <= p <= 0.01, k = 4, 30 <= n <= 40")
 print(p)
 ```
 
@@ -223,7 +235,7 @@ dépasse pas $0,4$, alors que pour la relance uniforme on avait plus d'$1,5$.
 En conclusion, le protocole Aloha discrétisé est très simple à mettre en œuvre
 mais il présente de nombreuses limitations. On a pu voir que le nombre moyen de
 messages en attente d'émission au $n$-ième slot, un relativement bon indicateur
-du niveau de congestion du réseau, diverge peu importe la valeur de $np$ avec
+du niveau de congestion du réseau, diverge fortement pour $np >= 0,2$, avec
 relance uniforme.
 
 Cependant, avec la relance "beb", le protocole Aloha est beaucoup plus

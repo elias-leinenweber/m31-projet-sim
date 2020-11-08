@@ -6,6 +6,11 @@
 #include "aloha.h"
 #include "randutils.h"
 
+#define P	0.01
+#define K	4
+#define SLOTS	250
+#define TESTS	100
+
 static void	usage(void);
 static void	sim_loop(double, uint32_t, uint32_t, uint32_t, bool);
 static void	sim(double, uint32_t, uint32_t, uint32_t, bool);
@@ -31,26 +36,26 @@ main(int argc, char *argv[])
 	/* Première partie. */
 	sim_id = 1;
 	for (k = K; k <= kmax; ++k)
-		for (i = 0; i < 100; ++i)
+		for (i = 0; i < TESTS; ++i)
 			sim_loop(pmax, k, nmax, SLOTS, false);
 
 	/* Deuxième partie. */
 	sim_id = 2;
 	for (slots = 0; slots <= slotsmax; ++slots) {
 		for (n = 10; n <= 50; n += 10)
-			for (i = 0; i < 100; ++i)
+			for (i = 0; i < TESTS; ++i)
 				sim(0.01, K, n, slots, false);
 		for (p = 0.001; p <= 0.005; p += 0.0005)
-			for (i = 0; i < 100; ++i)
+			for (i = 0; i < TESTS; ++i)
 				sim(p, K, 100, slots, false);
 	}
 
 	/* Troisième partie. */
 	sim_id = 3;
 	for (slots = 100; slots <= slotsmax; ++slots) {
-		for (n = 20; n <= 40; ++n)
+		for (n = 18; n <= 23; ++n)
 			for (p = 0.00875; p <= 0.01; p += 0.00025)
-				for (i = 0; i < 100; ++i)
+				for (i = 0; i < TESTS; ++i)
 					sim(p, K, n, slots, false);
 	}
 
@@ -59,7 +64,7 @@ main(int argc, char *argv[])
 	for (slots = 0; slots <= slotsmax; ++slots) {
 		for (n = 30; n <= 40; ++n)
 			for (p = 0.00875; p <= 0.01; p += 0.00025)
-				for (i = 0; i < 100; ++i)
+				for (i = 0; i < TESTS; ++i)
 					sim(p, K, n, slots, true);
 	}
 

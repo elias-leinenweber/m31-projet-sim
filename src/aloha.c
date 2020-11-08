@@ -28,8 +28,7 @@ slotted_aloha(double p, uint32_t k, uint32_t n, uint32_t slots, bool beb)
 	nb_senders = 0;
 	next_slot = calloc(n + 1, sizeof(uint32_t));
 	senders = calloc(n + 1, sizeof(uint32_t));
-	tries = calloc(n + 1, sizeof(uint32_t));
-	//tries = beb ? calloc(n + 1, sizeof(uint32_t)) : NULL;
+	tries = beb ? calloc(n + 1, sizeof(uint32_t)) : NULL;
 
 	/* Pour chaque slot (représentant chacun une unité de temps) : */
 	for (slot = 1; slot <= slots; ++slot) {
@@ -86,7 +85,7 @@ slotted_aloha(double p, uint32_t k, uint32_t n, uint32_t slots, bool beb)
 		    slot, is_slot_occupied ? "" : "not ", res.queued_msgs);
 	}
 
-	//if (beb)
+	if (tries)
 		free(tries);
 	free(senders);
 	free(next_slot);
