@@ -16,10 +16,10 @@
  * - `slots` : durée de la simulation en slots
  */
 struct result
-slotted_aloha(double p, uint32_t k, uint32_t n, uint32_t slots)
+slotted_aloha(double p, uint32_t k, uint32_t n, uint32_t slots, bool beb)
 {
 	struct result res;			/* résultats de la simulation */
-	uint32_t i, nb_senders, *next_slot, *senders, slot, station;
+	uint32_t i, nb_senders, *next_slot, *senders, slot, station, *tries;
 	bool is_slot_occupied;
 
 	/* Initialisation des variables */
@@ -28,6 +28,8 @@ slotted_aloha(double p, uint32_t k, uint32_t n, uint32_t slots)
 	nb_senders = 0;
 	next_slot = calloc(n + 1, sizeof(uint32_t));
 	senders = calloc(n + 1, sizeof(uint32_t));
+	tries = calloc(n + 1, sizeof(uint32_t));
+	//tries = beb ? calloc(n + 1, sizeof(uint32_t)) : NULL;
 
 	/* Pour chaque slot (représentant chacun une unité de temps) : */
 	for (slot = 1; slot <= slots; ++slot) {
@@ -66,7 +68,9 @@ slotted_aloha(double p, uint32_t k, uint32_t n, uint32_t slots)
 			 * message.
 			 */
 			for (i = 0; i < nb_senders; ++i)
-				next_slot[senders[i]] = slot + uniform(1, k);
+				next_slot[senders[i]] = slot +
+				    (beb ? beb_rand(tries[senders[i]]++) :
+				    uniform(1, k));
 
 		/*
 		 * Si le slot est occupé, c'est-à-dire si une station a effectué
@@ -82,6 +86,8 @@ slotted_aloha(double p, uint32_t k, uint32_t n, uint32_t slots)
 		    slot, is_slot_occupied ? "" : "not ", res.queued_msgs);
 	}
 
+	//if (beb)
+		free(tries);
 	free(senders);
 	free(next_slot);
 	return res;

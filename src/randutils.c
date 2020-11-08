@@ -46,3 +46,13 @@ uniform(uint32_t a, uint32_t b)
 	assert(b >= a);
 	return randint(a, b + 1);
 }
+
+uint32_t
+beb_rand(uint32_t try) {
+	uint32_t hi = 1;
+
+	hi <<= try + 1;
+	if (hi == 0)
+		hi = 1;
+	return uniform(1, hi);
+}
